@@ -1,7 +1,7 @@
-package com.askisi5.app.rest.Controller;
+package com.askisi5.app.rest.controller;
 
-import com.askisi5.app.rest.Models.User;
-import com.askisi5.app.rest.Repo.UserRepo;
+import com.askisi5.app.rest.model.User;
+import com.askisi5.app.rest.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,19 +20,19 @@ public class UserController {
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Autowired
-    private UserRepo userRepo;
+    private UserRepository userRepository;
 
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         logger.info("Fetching all users");
-        List<User> users = userRepo.findAll();
+        List<User> users = userRepository.findAll();
         return ResponseEntity.ok(users);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable long id) {
         logger.info("Fetching user with id: {}", id);
-        Optional<User> user = userRepo.findById(id);
+        Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         } else {
@@ -44,14 +44,14 @@ public class UserController {
     @PostMapping
     public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
         logger.info("Creating new user: {}", user.getFirstName() + " " + user.getLastName());
-        User savedUser = userRepo.save(user);
+        User savedUser = userRepository.save(user);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<User> updateUser(@PathVariable long id, @Valid @RequestBody User userDetails) {
         logger.info("Updating user with id: {}", id);
-        Optional<User> optionalUser = userRepo.findById(id);
+        Optional<User> optionalUser = userRepository.findById(id);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             user.setFirstName(userDetails.getFirstName());
@@ -63,7 +63,7 @@ public class UserController {
             user.setPhoneNumber(userDetails.getPhoneNumber());
             user.setBirthdayDate(userDetails.getBirthdayDate());
             user.setSex(userDetails.getSex());
-            User updatedUser = userRepo.save(user);
+            User updatedUser = userRepository.save(user);
             return ResponseEntity.ok(updatedUser);
         } else {
             logger.warn("User with id {} not found for update", id);
@@ -74,9 +74,9 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable long id) {
         logger.info("Deleting user with id: {}", id);
-        Optional<User> user = userRepo.findById(id);
+        Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
-            userRepo.delete(user.get());
+            userRepository.delete(user.get());
             return ResponseEntity.noContent().build();
         } else {
             logger.warn("User with id {} not found for deletion", id);

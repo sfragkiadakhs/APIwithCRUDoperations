@@ -1,4 +1,4 @@
-package com.askisi5.app.rest.Controller;
+package com.askisi5.app.rest.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
