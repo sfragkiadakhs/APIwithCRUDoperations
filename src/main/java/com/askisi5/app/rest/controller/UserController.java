@@ -1,86 +1,49 @@
 package com.askisi5.app.rest.controller;
 
-import com.askisi5.app.rest.model.User;
-import com.askisi5.app.rest.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.askisi5.app.rest.dto.UserRequest;
+import com.askisi5.app.rest.dto.UserResponse;
+import com.askisi5.app.rest.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final UserService userService;
 
-    @Autowired
-    private UserRepository userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        logger.info("Fetching all users");
-        List<User> users = userRepository.findAll();
-        return ResponseEntity.ok(users);
+    public ResponseEntity<List<UserResponse>> getAllUsers() {
+        return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable long id) {
-        logger.info("Fetching user with id: {}", id);
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            return ResponseEntity.ok(user.get());
-        } else {
-            logger.warn("User with id {} not found", id);
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserResponse> getUserById(@PathVariable long id) {
+        return ResponseEntity.ok(userService.getUserById(id));
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@Valid @RequestBody User user) {
-        logger.info("Creating new user: {}", user.getFirstName() + " " + user.getLastName());
-        User savedUser = userRepository.save(user);
+    public ResponseEntity<UserResponse> createUser(@Valid @RequestBody UserRequest request) {
+        UserResponse savedUser = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable long id, @Valid @RequestBody User userDetails) {
-        logger.info("Updating user with id: {}", id);
-        Optional<User> optionalUser = userRepository.findById(id);
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
-            user.setFirstName(userDetails.getFirstName());
-            user.setLastName(userDetails.getLastName());
-            user.setStreet(userDetails.getStreet());
-            user.setCity(userDetails.getCity());
-            user.setPostalCode(userDetails.getPostalCode());
-            user.setCountry(userDetails.getCountry());
-            user.setPhoneNumber(userDetails.getPhoneNumber());
-            user.setBirthdayDate(userDetails.getBirthdayDate());
-            user.setSex(userDetails.getSex());
-            User updatedUser = userRepository.save(user);
-            return ResponseEntity.ok(updatedUser);
-        } else {
-            logger.warn("User with id {} not found for update", id);
-            return ResponseEntity.notFound().build();
-        }
+    public ResponseEntity<UserResponse> updateUser(@PathVariable long id, @Valid @RequestBody UserRequest request) {
+        return ResponseEntity.ok(userService.updateUser(id, request));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable long id) {
-        logger.info("Deleting user with id: {}", id);
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            userRepository.delete(user.get());
-            return ResponseEntity.noContent().build();
-        } else {
-            logger.warn("User with id {} not found for deletion", id);
-            return ResponseEntity.notFound().build();
-        }
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }
