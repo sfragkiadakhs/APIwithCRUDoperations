@@ -1,5 +1,7 @@
 # Library Management REST API
 
+*University project (BEng Informatics), uploaded 2024. Refactored in 2026 with AI assistance: service layer, DTOs, centralized error handling, unit and integration tests.*
+
 A REST API for managing users and books in a library system, built with Spring Boot and JPA in a layered
 architecture (controller → service → repository).
 
